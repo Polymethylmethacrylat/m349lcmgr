@@ -10,6 +10,8 @@ const mem = std.mem;
 
 const builtin = @import("builtin");
 
+const lang = @import("lang/de_DE.zig");
+
 /// caller owns memory
 fn getInput(
     allocator: mem.Allocator,
@@ -39,7 +41,8 @@ const Token = union(enum) {
     fn parse(word: []const u8) @This() {
         return inline for (comptime std.meta.fieldNames(@This())) |field| {
             if (comptime std.mem.eql(u8, field, "literal")) continue;
-            if (std.mem.eql(u8, word, @field(lang.tokens, field))) break @unionInit(@This(), field, {});
+            if (std.mem.eql(u8, word, @field(lang.tokens, field)))
+                break @unionInit(@This(), field, {});
         } else .{ .literal = word };
     }
 };
@@ -73,15 +76,19 @@ fn getTokenIterator(input: []const u8) TokenIterator {
 fn new() WriteError!void {
     try getStdOut().writeAll("new\n");
 }
+
 fn edit() WriteError!void {
     try getStdOut().writeAll("edit\n");
 }
+
 fn help() WriteError!void {
     try getStdOut().writeAll("help\n");
 }
+
 fn search() WriteError!void {
     try getStdOut().writeAll("search\n");
 }
+
 fn quit(token_iterator: TokenIterator) WriteError!bool {
     const stdout = getStdOut().writer();
     var token_iter = token_iterator;
@@ -122,30 +129,6 @@ pub fn main() !void {
     }
     try stdout.writeAll(lang.shutdown_prompt);
 }
-
-const lang = de;
-const de = .{
-    .prompt = "Kundenverwaltung: ",
-    .shutdown_prompt = "\nBeende Programm!\n",
-    .cmd = .{
-        .help = .{
-            .quit = "quit, bye       Schließt das Programm",
-        },
-    },
-    .tokens = .{
-        .quit = "beende",
-        .bye = "beende",
-        .help = "hilfe",
-        .search = "suche",
-        .name = "name",
-        .description = "beschreibung",
-        .email = "email",
-        .tel = "tel",
-        .client = "kunde",
-        .order = "auftrag",
-        .new = "neu",
-    },
-};
 
 const testing = if (builtin.is_test) std.testing else void;
 const skip = error.SkipZigTest;
