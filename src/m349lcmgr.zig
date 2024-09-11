@@ -85,8 +85,18 @@ fn help() WriteError!void {
     try getStdOut().writeAll("help\n");
 }
 
-fn search() WriteError!void {
-    try getStdOut().writeAll("search\n");
+fn search(allocator: mem.Allocator, token_iterator: TokenIterator) WriteError!void {
+    const stdin = getStdIn().writer();
+    const stdout = getStdOut().writer();
+    _ = stdout; // autofix
+    var token_iter = init: {
+        var iter = token_iterator;
+        if (iter.peek()) |_| break: init token_iterator else {
+            const input = try getInput(allocator, stdin);
+            break :init getTokenIterator(input);
+        }
+    };
+    _ = token_iter; // autofix
 }
 
 fn quit(token_iterator: TokenIterator) WriteError!bool {
